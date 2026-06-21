@@ -51,6 +51,8 @@ const CYCLES = [
 ];
 
 function loadSubs() {
+  // Check if window is defined to prevent Server-Side Rendering (SSR) build errors
+  if (typeof window === "undefined") return SEED;
   try {
     const raw = localStorage.getItem("subtrack_subs");
     return raw ? JSON.parse(raw) : SEED;
@@ -68,7 +70,9 @@ export default function App() {
   const [mRenewal, setMRenewal] = useState(todayStr());
 
   useEffect(() => {
-    localStorage.setItem("subtrack_subs", JSON.stringify(subs));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("subtrack_subs", JSON.stringify(subs));
+    }
   }, [subs]);
 
   const totalMonthly = useMemo(
@@ -120,7 +124,8 @@ export default function App() {
         minHeight: "100vh",
       }}
     >
-      <style>{`
+      {/* Safely inject CSS via dangerouslySetInnerHTML to clear up compile parser issues */}
+      <style dangerouslySetInnerHTML={{ __html: `
         * { box-sizing: border-box; }
         .tabular { font-variant-numeric: tabular-nums; }
         input, button, select { font-family: inherit; }
@@ -135,7 +140,7 @@ export default function App() {
           outline: 2px solid var(--teal);
           outline-offset: 1px;
         }
-      `}</style>
+      `}} />
 
       <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 100px" }}>
         <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>
